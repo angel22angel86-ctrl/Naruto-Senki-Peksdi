@@ -20,7 +20,12 @@ public:
 	void setSelectList(CCArray *var) { _selectList = var; }
 
 	void onGameStart();
-	void setSelectedMap(int mapId);
+	void onPreviousMap(Ref *sender);
+	void onNextMap(Ref *sender);
+	void onConfirmMap(Ref *sender);
+	void onBackFromMapSelect(Ref *sender);
+	void showMapSelect();
+	void updateMapPreview();
 	void setPlayerSelected(const char *charName) {}
 
 	CREATE_FUNC(SelectLayer);
@@ -31,4 +36,8 @@ private:
 	void keyBackClicked();
 
 	bool isStart = false;
+	bool isMapSelect = false;
+	int selectedMapId = 1;
+	Node *mapSelectOverlay = nullptr;
+	Sprite *mapPreview = nullptr;
 };
