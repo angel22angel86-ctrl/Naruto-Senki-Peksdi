@@ -209,8 +209,12 @@ void GameLayer::initTileMap()
 		CCMessageBox("Not found any map", "[Error] Not found any map");
 		return;
 	}
-	const int selectedMap = getGameModeHandler()->getSelectedMap();
-	mapId = (selectedMap >= 1 && selectedMap <= mapCount) ? selectedMap : (random(mapCount) + 1);
+	// Use the map selected on the Character/Map Select screen. A value of
+	// zero (or an out-of-range value) preserves the original random behavior.
+	const int requestedMapId = getGameModeHandler()->mapId;
+	mapId = (requestedMapId >= 1 && requestedMapId <= mapCount)
+			? requestedMapId
+			: (random(mapCount) + 1);
 	currentMap = TMXTiledMap::create(GetMapPath(mapId));
 	addChild(currentMap, kMapOrder);
 }
