@@ -473,9 +473,8 @@ void HudLayer::initHeroInterface()
 	item3Button->setMarkSprite("skill_freeze.png");
 	item4Button->setMarkSprite("skill_freeze.png");
 
-	// Apply the saved Custom HUD layout. If nothing was saved, the original
-	// positions/scales above remain unchanged.
-	applyCustomHudLayout();
+	// Apply optional custom HUD layout. Mode 0 keeps the original HUD.
+	CustomHudLayout::apply(this);
 
 	// init gear
 	updateGears();
@@ -543,11 +542,6 @@ void HudLayer::initHeroInterface()
 	updateSpecialSkillButtons();
 
 	_isInitPlayerHud = true;
-}
-
-void HudLayer::applyCustomHudLayout()
-{
-	CustomHudLayout::apply(this);
 }
 
 void HudLayer::addMapIcon()

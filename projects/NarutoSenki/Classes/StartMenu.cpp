@@ -53,18 +53,19 @@ public:
         RETURN_FALSE_IF(!Layer::init());
         _delegate = delegate;
 
-        // The HUD sprites are packed in UI.plist. The main menu does not need
-        // this sheet normally, so load it lazily when the editor is opened.
         if (getSpriteFrame("JoyStickBg.png") == nullptr)
             addSprites("UI.plist");
 
         addChild(LayerColor::create(ccc4(0, 0, 0, 235), winSize.width, winSize.height), -10);
 
         auto topBar = Sprite::create("menu_bar3.png");
-        topBar->setAnchorPoint(Vec2(0, 0));
-        topBar->setPosition(Vec2(0, winSize.height - topBar->getContentSize().height));
-        FULL_SCREEN_SPRITE(topBar);
-        addChild(topBar, -5);
+        if (topBar)
+        {
+            topBar->setAnchorPoint(Vec2(0, 0));
+            topBar->setPosition(Vec2(0, winSize.height - topBar->getContentSize().height));
+            FULL_SCREEN_SPRITE(topBar);
+            addChild(topBar, -5);
+        }
 
         auto title = CCLabelBMFont::create("CUSTOM HUD", Fonts::Default);
         title->setScale(0.55f);
@@ -104,12 +105,14 @@ public:
 
     void createItem(CustomHudElement id, const char *frameName, const char *name)
     {
-        auto *sprite = Sprite::createWithSpriteFrameName(frameName);
+        Sprite *sprite = Sprite::createWithSpriteFrameName(frameName);
         if (!sprite)
         {
             CCLOGERROR("Custom HUD: missing frame %s", frameName);
             return;
         }
+        // ActionButton uses an origin/left-bottom anchor, so the editor uses
+        // the same anchor. This makes saved positions directly usable in game.
         sprite->setAnchorPoint(Vec2(0, 0));
         addChild(sprite, 5);
         _items.push_back({id, sprite, name});
@@ -117,18 +120,20 @@ public:
 
     void createJoystick()
     {
-        auto *bg = Sprite::createWithSpriteFrameName("JoyStickBg.png");
+        Sprite *bg = Sprite::createWithSpriteFrameName("JoyStickBg.png");
         if (!bg)
         {
             CCLOGERROR("Custom HUD: missing JoyStickBg.png");
             return;
         }
+
         bg->setAnchorPoint(Vec2(0, 0));
-        auto *stick = Sprite::createWithSpriteFrameName("JoyStick.png");
+        Sprite *stick = Sprite::createWithSpriteFrameName("JoyStick.png");
         if (stick)
         {
-            stick->setAnchorPoint(Vec2(0.5f, 0.5f));
-            stick->setPosition(Vec2(bg->getContentSize().width / 2, bg->getContentSize().height / 2));
+            stick->setAnchorPoint(Vec2(0, 0));
+            stick->setPosition(Vec2(bg->getContentSize().width / 2 - stick->getContentSize().width / 2,
+                                    bg->getContentSize().height / 2 - stick->getContentSize().height / 2));
             bg->addChild(stick);
         }
         addChild(bg, 5);
@@ -150,6 +155,9 @@ public:
     {
         const float width = winSize.width;
         const float height = winSize.height;
+        const float skillWidth = findSprite(CustomHudElement::Skill1) ?
+            findSprite(CustomHudElement::Skill1)->getContentSize().width : 48.0f;
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
         switch (id)
         {
@@ -159,37 +167,37 @@ public:
         case CustomHudElement::Skill3: return Vec2(width - 44, 8 + node->getContentSize().height + 8);
         case CustomHudElement::Skill4:
         {
-            auto *skill1 = findSprite(CustomHudElement::Skill1);
-            return Vec2(skill1->getPositionX() - node->getContentSize().width - 8, 2);
+            Sprite *s = findSprite(CustomHudElement::Skill1);
+            return s ? Vec2(s->getPositionX() - node->getContentSize().width - 8, 2) : Vec2(width - 150, 2);
         }
         case CustomHudElement::Skill5:
         {
-            auto *skill4 = findSprite(CustomHudElement::Skill4);
-            return Vec2(skill4->getPositionX() - node->getContentSize().width - 8, 2);
+            Sprite *s = findSprite(CustomHudElement::Skill4);
+            return s ? Vec2(s->getPositionX() - node->getContentSize().width - 8, 2) : Vec2(width - 220, 2);
         }
         case CustomHudElement::Ramen:
         {
-            auto *skill3 = findSprite(CustomHudElement::Skill3);
-            return Vec2(8, skill3->getPositionY() + skill3->getContentSize().height);
+            Sprite *s = findSprite(CustomHudElement::Skill3);
+            return s ? Vec2(8, s->getPositionY() + s->getContentSize().height) : Vec2(8, 80);
         }
         case CustomHudElement::Item2:
         {
-            auto *skill3 = findSprite(CustomHudElement::Skill3);
-            return Vec2(width - 44, skill3->getPositionY() + skill3->getContentSize().height + 8);
+            Sprite *s = findSprite(CustomHudElement::Skill3);
+            return s ? Vec2(width - 44, s->getPositionY() + s->getContentSize().height + 8) : Vec2(width - 44, 80);
         }
         case CustomHudElement::Item3:
         {
-            auto *skill5 = findSprite(CustomHudElement::Skill5);
-            return Vec2(skill5->getPositionX() - skill5->getContentSize().width - 8, 2);
+            Sprite *s = findSprite(CustomHudElement::Skill5);
+            return s ? Vec2(s->getPositionX() - node->getContentSize().width - 8, 2) : Vec2(width - 280, 2);
         }
         case CustomHudElement::Item4:
-            return Vec2(findSprite(CustomHudElement::Skill2)->getPositionX() - node->getContentSize().width - 8, 50);
-        case CustomHudElement::Joystick:
-            return Vec2((width / 570.0f) * 28.0f, (height / 320.0f) * 16.0f);
-        default: break;
+        {
+            Sprite *s = findSprite(CustomHudElement::Skill2);
+            return s ? Vec2(s->getPositionX() - node->getContentSize().width - 8, 50) : Vec2(width - 150, 50);
+        }
+        case CustomHudElement::Joystick: return Vec2((width / 570.0f) * 28.0f, (height / 320.0f) * 16.0f);
         }
 #else
-        const float skillWidth = findSprite(CustomHudElement::Skill1)->getContentSize().width;
         switch (id)
         {
         case CustomHudElement::Attack: return Vec2(width + 100, -100);
@@ -198,12 +206,11 @@ public:
         case CustomHudElement::Skill3: return Vec2(width / 2, 2);
         case CustomHudElement::Skill4: return Vec2(width / 2 + skillWidth + 8, 2);
         case CustomHudElement::Skill5: return Vec2(width / 2 + (skillWidth + 8) * 2, 2);
-        case CustomHudElement::Ramen: return Vec2(8, 8 + findSprite(CustomHudElement::Attack)->getContentSize().height + skillWidth);
+        case CustomHudElement::Ramen: return Vec2(8, 8 + skillWidth);
         case CustomHudElement::Item3: return Vec2(width - skillWidth - 64, 2);
         case CustomHudElement::Item4: return Vec2(width - 95, 50);
-        case CustomHudElement::Item2: return Vec2(width - 44, 8 + findSprite(CustomHudElement::Attack)->getContentSize().height + 8);
+        case CustomHudElement::Item2: return Vec2(width - 44, 8 + skillWidth + 8);
         case CustomHudElement::Joystick: return Vec2((width / 570.0f) * 28.0f, (height / 320.0f) * 16.0f);
-        default: break;
         }
 #endif
         return Vec2(width / 2, height / 2);
@@ -214,14 +221,6 @@ public:
         for (const auto &item : _items)
             if (item.id == id)
                 return item.sprite;
-        return nullptr;
-    }
-
-    Item *findItem(CustomHudElement id)
-    {
-        for (auto &item : _items)
-            if (item.id == id)
-                return &item;
         return nullptr;
     }
 
@@ -242,7 +241,6 @@ public:
     void resetAll()
     {
         CustomHudLayout::reset();
-        CustomHudLayout::flush();
         for (auto &item : _items)
         {
             item.sprite->setPosition(defaultPosition(item.id, item.sprite));
@@ -252,30 +250,36 @@ public:
 
     void createControls()
     {
-        auto *saveItem = MenuItemSprite::create(
+        MenuItemSprite *saveItem = MenuItemSprite::create(
             Sprite::createWithSpriteFrameName("yes_btn1.png"),
             Sprite::createWithSpriteFrameName("yes_btn2.png"),
             this, menu_selector(CustomHudEditorLayer::onSave));
-        auto *saveText = CCLabelBMFont::create("SAVE HUD", Fonts::Default);
-        saveText->setScale(0.28f);
-        saveText->setPosition(Vec2(saveItem->getContentSize().width / 2, saveItem->getContentSize().height / 2));
-        saveItem->addChild(saveText);
+        if (saveItem)
+        {
+            auto *saveText = CCLabelBMFont::create("SAVE HUD", Fonts::Default);
+            saveText->setScale(0.28f);
+            saveText->setPosition(Vec2(saveItem->getContentSize().width / 2, saveItem->getContentSize().height / 2));
+            saveItem->addChild(saveText);
+        }
 
-        auto *resetItem = MenuItemSprite::create(
+        MenuItemSprite *resetItem = MenuItemSprite::create(
             Sprite::createWithSpriteFrameName("no_btn1.png"),
             Sprite::createWithSpriteFrameName("no_btn2.png"),
             this, menu_selector(CustomHudEditorLayer::onReset));
-        auto *resetText = CCLabelBMFont::create("RESET", Fonts::Default);
-        resetText->setScale(0.28f);
-        resetText->setPosition(Vec2(resetItem->getContentSize().width / 2, resetItem->getContentSize().height / 2));
-        resetItem->addChild(resetText);
+        if (resetItem)
+        {
+            auto *resetText = CCLabelBMFont::create("RESET", Fonts::Default);
+            resetText->setScale(0.28f);
+            resetText->setPosition(Vec2(resetItem->getContentSize().width / 2, resetItem->getContentSize().height / 2));
+            resetItem->addChild(resetText);
+        }
 
         auto *minusItem = MenuItemLabel::create(CCLabelBMFont::create("-", Fonts::Default), this, menu_selector(CustomHudEditorLayer::onScaleDown));
         auto *plusItem = MenuItemLabel::create(CCLabelBMFont::create("+", Fonts::Default), this, menu_selector(CustomHudEditorLayer::onScaleUp));
         minusItem->setScale(0.8f);
         plusItem->setScale(0.8f);
 
-        auto *menu = Menu::create(saveItem, resetItem, minusItem, plusItem, nullptr);
+        Menu *menu = Menu::create(saveItem, resetItem, minusItem, plusItem, nullptr);
         menu->setPosition(Vec2(winSize.width / 2, 30));
         menu->alignItemsHorizontallyWithPadding(18);
         addChild(menu, 20);
@@ -283,7 +287,7 @@ public:
 
     void selectItem(int index)
     {
-        if (_items.empty())
+        if (_items.empty() || _selectedLabel == nullptr)
             return;
         _selected = std::max(0, std::min(index, static_cast<int>(_items.size()) - 1));
         _selectedLabel->setString(string("Selected: ") + _items[_selected].name);
@@ -292,14 +296,14 @@ public:
     void onScaleUp(Ref *)
     {
         if (_selected < 0 || _selected >= static_cast<int>(_items.size())) return;
-        auto *node = _items[_selected].sprite;
+        Sprite *node = _items[_selected].sprite;
         node->setScale(std::min(2.5f, node->getScale() + 0.1f));
     }
 
     void onScaleDown(Ref *)
     {
         if (_selected < 0 || _selected >= static_cast<int>(_items.size())) return;
-        auto *node = _items[_selected].sprite;
+        Sprite *node = _items[_selected].sprite;
         node->setScale(std::max(0.35f, node->getScale() - 0.1f));
     }
 
@@ -332,8 +336,8 @@ public:
         const Vec2 point = convertTouchToNodeSpace(touch);
         for (int i = static_cast<int>(_items.size()) - 1; i >= 0; --i)
         {
-            auto *node = _items[i].sprite;
-            if (node->getBoundingBox().containsPoint(point))
+            Sprite *node = _items[i].sprite;
+            if (node && node->getBoundingBox().containsPoint(point))
             {
                 selectItem(i);
                 _lastTouch = point;

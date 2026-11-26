@@ -144,7 +144,6 @@ public:
 	void updateSkillButtons();
 	void updateSpecialSkillButtons();
 	void resetSkillButtons();
-	void applyCustomHudLayout();
 
 	CREATE_FUNC(HudLayer);
 

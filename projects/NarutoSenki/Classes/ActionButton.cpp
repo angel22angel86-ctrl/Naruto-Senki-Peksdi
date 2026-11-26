@@ -412,10 +412,6 @@ void ActionButton::setProgressMark()
 			}
 		}
 	}
-
-	// This overlay can be created after the initial HUD layout. Re-apply the
-	// button transform so the progress graphics stay on the customized icon.
-	syncHudTransform();
 }
 
 void ActionButton::syncHudTransform()
