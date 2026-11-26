@@ -64,7 +64,7 @@ private:
 	vector<HeroData> heroDataVector;
 	// map
 	int mapId = 0;
-	int selectedMapId = 0; // 0 means use the original random-map behavior
+	int selectedMapId = 0;
 	// tower
 	bool enableKonohaTowers = true;
 	bool enableAkatsukiTowers = true;
