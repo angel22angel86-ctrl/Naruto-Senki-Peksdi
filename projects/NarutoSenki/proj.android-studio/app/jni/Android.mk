@@ -22,6 +22,7 @@ LOCAL_SRC_FILES := narutosenki/main.cpp \
 		../../../Classes/GearLayer.cpp \
 		../../../Classes/HPBar.cpp \
 		../../../Classes/HudLayer.cpp \
+		../../../Classes/CustomHudLayout.cpp \
 		../../../Classes/JoyStick.cpp \
 		../../../Classes/LoadLayer.cpp \
 		../../../Classes/PauseLayer.cpp \
