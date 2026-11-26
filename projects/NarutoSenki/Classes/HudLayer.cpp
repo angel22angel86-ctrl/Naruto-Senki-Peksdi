@@ -473,9 +473,8 @@ void HudLayer::initHeroInterface()
 	item3Button->setMarkSprite("skill_freeze.png");
 	item4Button->setMarkSprite("skill_freeze.png");
 
-	// Apply the persistent Custom HUD layout after all ActionButton auxiliary
-	// overlays have been created, then synchronize those overlays as well.
-	applyCustomHudLayout();
+	// Apply optional custom HUD layout. Mode 0 keeps the original HUD.
+	CustomHudLayout::apply(this);
 
 	// init gear
 	updateGears();
@@ -1338,48 +1337,6 @@ void HudLayer::removeOugis()
 	}
 
 	getGameLayer()->removeOugis();
-}
-
-void HudLayer::applyCustomHudLayout()
-{
-	const auto screen = winSize;
-
-	struct Entry
-	{
-		CustomHudElement id;
-		Node *node;
-	};
-
-	const Entry entries[] = {
-		{CustomHudElement::Attack, nAttackButton},
-		{CustomHudElement::Skill1, skill1Button},
-		{CustomHudElement::Skill2, skill2Button},
-		{CustomHudElement::Skill3, skill3Button},
-		{CustomHudElement::Skill4, skill4Button},
-		{CustomHudElement::Skill5, skill5Button},
-		{CustomHudElement::Ramen, item1Button},
-		{CustomHudElement::Item2, item2Button},
-		{CustomHudElement::Item3, item3Button},
-		{CustomHudElement::Item4, item4Button},
-		{CustomHudElement::Joystick, _joyStick},
-	};
-
-	for (const auto &entry : entries)
-	{
-		if (entry.node == nullptr)
-			continue;
-
-		const Vec2 defaultPosition = entry.node->getPosition();
-		float defaultScale = entry.node->getScale();
-#if !(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-		if (entry.id >= CustomHudElement::Skill1 && entry.id <= CustomHudElement::Skill5)
-			defaultScale = DESKTOP_UI_SCALE;
-#endif
-		entry.node->setPosition(CustomHudLayout::loadPosition(entry.id, defaultPosition, screen));
-		entry.node->setScale(CustomHudLayout::loadScale(entry.id, defaultScale));
-		if (entry.id != CustomHudElement::Joystick)
-			static_cast<ActionButton *>(entry.node)->syncHudTransform();
-	}
 }
 
 void HudLayer::initSkillButtons()
