@@ -209,7 +209,8 @@ void GameLayer::initTileMap()
 		CCMessageBox("Not found any map", "[Error] Not found any map");
 		return;
 	}
-	mapId = random(mapCount) + 1;
+	const int selectedMap = getGameModeHandler()->getSelectedMap();
+	mapId = (selectedMap >= 1 && selectedMap <= mapCount) ? selectedMap : (random(mapCount) + 1);
 	currentMap = TMXTiledMap::create(GetMapPath(mapId));
 	addChild(currentMap, kMapOrder);
 }

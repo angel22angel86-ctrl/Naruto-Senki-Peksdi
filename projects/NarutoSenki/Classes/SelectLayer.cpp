@@ -17,6 +17,13 @@ SelectLayer::~SelectLayer()
 		handler->resetCheats();
 }
 
+void SelectLayer::setSelectedMap(int mapId)
+{
+	auto handler = getGameModeHandler();
+	if (handler)
+		handler->setSelectedMap(mapId);
+}
+
 void SelectLayer::onGameStart()
 {
 	if (isStart)
