@@ -195,7 +195,7 @@ protected:
 
 	void initHeros(uint8_t playerCount, uint8_t enemyCount,
 				   const char *playerSelect, Group playerGroup,
-				   const char *com1Select = nullptr, const char *com2Select = nullptr, const char *com3Select = nullptr)
+				   const char *com1Select = nullptr, const char *com2Select = nullptr, const char *com3Select = nullptr, const char *enemySelect = nullptr)
 	{
 		clearHeroArray();
 
@@ -220,6 +220,8 @@ protected:
 			selectLayer->_com2Select = com2Select;
 		if (com3Select)
 			selectLayer->_com3Select = com3Select;
+		if (enemySelect)
+			selectLayer->_enemySelect = enemySelect;
 
 		// init player hero
 		string tmpChar;
@@ -261,6 +263,8 @@ protected:
 				continue;
 			if (selectLayer->_com3Select && is_same(selectLayer->_com3Select, kHeroList[i]))
 				continue;
+			if (enemySelect && is_same(enemySelect, kHeroList[i]))
+				continue;
 
 			realHeroVector.push_back(kHeroList[i]);
 		}
@@ -299,16 +303,24 @@ protected:
 			}
 			else
 			{
-				int count = realHeroVector.size();
-				setRand();
-				int index = random(count);
-				if (index == count)
-					index = realHeroVector.size() - 1;
-
-				hero = realHeroVector.at(index);
+				if (i == comOfPlayerGroupCount && enemySelect)
+				{
+					hero = enemySelect;
+				}
+				else
+				{
+					int count = realHeroVector.size();
+					setRand();
+					int index = random(count);
+					if (index >= count)
+						index = static_cast<int>(realHeroVector.size()) - 1;
+					hero = realHeroVector.at(index);
+				}
 				heroDataVector.push_back({hero, Role::Com, team > 0 ? Group::Konoha : Group::Akatsuki});
 				heroVector.push_back(hero);
-				realHeroVector.erase(std::find(realHeroVector.begin(), realHeroVector.end(), hero));
+				auto found = std::find(realHeroVector.begin(), realHeroVector.end(), hero);
+				if (found != realHeroVector.end())
+					realHeroVector.erase(found);
 			}
 		}
 	}
