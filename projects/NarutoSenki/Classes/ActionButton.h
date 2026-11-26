@@ -30,6 +30,7 @@ public:
 	void setMarkSprite(const char *mark);
 	void setOugisMark();
 	void setProgressMark();
+	void syncHudTransform();
 	void updateProgressMark();
 	void reset();
 
