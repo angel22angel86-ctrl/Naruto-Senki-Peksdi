@@ -35,12 +35,15 @@ void JoyStick::onExit()
 bool JoyStick::ccTouchBegan(Touch *touch, Event *event)
 {
 	Vec2 curPoint = touch->getLocation();
-	if (curPoint.x > winSize.width / 2 || curPoint.y > winSize.height / 2)
-	{
-		return false;
-	}
-
-	return true;
+	// The joystick can be moved from the Network/Custom HUD menu, so its
+	// touch area must follow the actual node instead of being hard-coded to
+	// the lower-left half of the screen.
+	CCRect touchRect = getBoundingBox();
+	touchRect.origin.x -= 12.0f;
+	touchRect.origin.y -= 12.0f;
+	touchRect.size.width += 24.0f;
+	touchRect.size.height += 24.0f;
+	return touchRect.containsPoint(curPoint);
 }
 
 void JoyStick::ccTouchMoved(Touch *touch, Event *event)
@@ -62,8 +65,9 @@ void JoyStick::ccTouchEnded(Touch *touch, Event *event)
 
 void JoyStick::updateDirectionForTouchLocation(Touch *touch)
 {
-	Vec2 startPoint = Vec2(32 + getContentSize().width / 2,
-						   32 + getContentSize().height / 2);
+	Vec2 startPoint = getPosition() + Vec2(
+		getContentSize().width * getScale() / 2.0f,
+		getContentSize().height * getScale() / 2.0f);
 	Vec2 curPoint = touch->getLocation();
 	Vec2 sp = curPoint - startPoint;
 	float distance = sp.getLength();
@@ -117,10 +121,14 @@ void JoyStick::updateDirectionForTouchLocation(Touch *touch)
 
 void JoyStick::updateJoyStick(float distance, Vec2 direction)
 {
-	if (distance < 27.5)
+	// Touch distance is measured in screen coordinates. Convert it to the
+	// joystick's local coordinates when the user changed its scale.
+	const float scale = getScale() > 0.0f ? getScale() : 1.0f;
+	const float localDistance = distance / scale;
+	if (localDistance < 27.5f)
 	{
-		_joyStickControl->setPosition(_defaultPotion + (direction * distance));
-	} /*else if (distance > 96) {
+		_joyStickControl->setPosition(_defaultPotion + (direction * localDistance));
+	} /*else if (localDistance > 96) {
 		_joyStickControl->setPosition(_defaultPotion + (direction * 53));
 	} */
 	else

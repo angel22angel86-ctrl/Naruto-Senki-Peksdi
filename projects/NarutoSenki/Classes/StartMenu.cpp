@@ -110,7 +110,7 @@ public:
             CCLOGERROR("Custom HUD: missing frame %s", frameName);
             return;
         }
-        sprite->setAnchorPoint(Vec2(0.5f, 0.5f));
+        sprite->setAnchorPoint(Vec2(0, 0));
         addChild(sprite, 5);
         _items.push_back({id, sprite, name});
     }
@@ -123,7 +123,7 @@ public:
             CCLOGERROR("Custom HUD: missing JoyStickBg.png");
             return;
         }
-        bg->setAnchorPoint(Vec2(0.5f, 0.5f));
+        bg->setAnchorPoint(Vec2(0, 0));
         auto *stick = Sprite::createWithSpriteFrameName("JoyStick.png");
         if (stick)
         {
@@ -241,6 +241,8 @@ public:
 
     void resetAll()
     {
+        CustomHudLayout::reset();
+        CustomHudLayout::flush();
         for (auto &item : _items)
         {
             item.sprite->setPosition(defaultPosition(item.id, item.sprite));
