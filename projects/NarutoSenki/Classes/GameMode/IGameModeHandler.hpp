@@ -64,6 +64,7 @@ private:
 	vector<HeroData> heroDataVector;
 	// map
 	int mapId = 0;
+	int selectedMapId = 0; // 0 means use the original random-map behavior
 	// tower
 	bool enableKonohaTowers = true;
 	bool enableAkatsukiTowers = true;
@@ -112,6 +113,8 @@ public:
 	virtual void onCharacterReborn(CharacterBase *c) = 0;
 
 	inline const GameData &getGameData() { return gd; }
+	inline void setSelectedMap(int id) { selectedMapId = id; }
+	inline int getSelectedMap() const { return selectedMapId; }
 	inline int getOldCheats() { return oldCheats; }
 	inline void setOldCheats(int val) { oldCheats = val; }
 	inline void resetCheats()
