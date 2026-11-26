@@ -58,7 +58,6 @@ public:
 	void onHardLayerCallBack();
 
 	void enterCustomMode();
-	void exitCustomMode();
 	void enterTrainingMode();
 	void enterSelectLayer();
 
@@ -98,5 +97,4 @@ private:
 	void onExit();
 
 	vector<MenuButton *> _menuArray;
-	Layer *customHudLayer = nullptr;
 };

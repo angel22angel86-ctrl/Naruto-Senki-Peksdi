@@ -230,8 +230,8 @@ void ActionButton::beganAnimation(bool isLock)
 									  getPositionY() + getContentSize().height * getScale() / 2));
 #else
 			cdLabel->setScale(0.4f);
-			cdLabel->setPosition(Vec2(getPositionX() + getContentSize().width * getScale() / 2,
-									  getPositionY() + getContentSize().height * getScale() / 2));
+			cdLabel->setPosition(Vec2(getPositionX() + getContentSize().width / 2,
+									  getPositionY() + getContentSize().height / 2));
 #endif
 
 			_delegate->addChild(cdLabel, 200);
@@ -412,82 +412,6 @@ void ActionButton::setProgressMark()
 			}
 		}
 	}
-}
-
-void ActionButton::syncHudTransform()
-{
-    // The ActionButton itself lives in uiBatch, while cooldown/lock/progress
-    // overlays live directly on HudLayer. Keep those auxiliary nodes aligned
-    // with the custom position and scale of the real button.
-    float defaultButtonScale = 1.0f;
-#if !(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    if (_abType != NAttack)
-        defaultButtonScale = DESKTOP_UI_SCALE;
-#endif
-    const float factor = defaultButtonScale > 0.0f ? getScale() / defaultButtonScale : 1.0f;
-
-    if (markSprite)
-    {
-        markSprite->setPosition(getPosition());
-#if !(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-        markSprite->setScale(DESKTOP_UI_MASK_SCALE * factor);
-#else
-        markSprite->setScale(factor);
-#endif
-    }
-
-    if (ougismarkSprite)
-    {
-        ougismarkSprite->setPosition(getPosition());
-#if !(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-        ougismarkSprite->setScale(DESKTOP_UI_SCALE * factor);
-#else
-        ougismarkSprite->setScale(factor);
-#endif
-    }
-
-    if (clipper)
-    {
-        clipper->setPosition(getPosition());
-        clipper->setScale(factor);
-    }
-
-    if (progressPointSprite)
-    {
-        progressPointSprite->setPosition(Vec2(getPositionX() + 1.0f * factor, getPositionY()));
-#if !(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-        progressPointSprite->setScale(DESKTOP_UI_SCALE * factor);
-#else
-        progressPointSprite->setScale(factor);
-#endif
-    }
-
-    if (proressblinkMask)
-    {
-        proressblinkMask->setPosition(getPosition());
-#if !(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-        proressblinkMask->setScale(DESKTOP_UI_SCALE * factor);
-#else
-        proressblinkMask->setScale(factor);
-#endif
-    }
-
-    if (gearSign)
-    {
-        gearSign->setPosition(Vec2(getPositionX() + 17.0f * factor, getPositionY() + 17.0f * factor));
-        gearSign->setScale(factor);
-    }
-
-    if (lockLabel1)
-    {
-        lockLabel1->setPosition(Vec2(getPositionX() + getContentSize().width * getScale() / 2,
-                                     getPositionY() + getContentSize().height * getScale() / 2));
-#if !(CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-        lockLabel1->setScale(0.3f * factor);
-#else
-        lockLabel1->setScale(0.4f * factor);
-#endif
-    }
 }
 
 void ActionButton::updateProgressMark()

@@ -1,7 +1,6 @@
 #include "Core/Hero.hpp"
 #include "GameLayer.h"
 #include "HudLayer.h"
-#include "CustomHudLayout.h"
 #include "MyUtils/CCShake.h"
 
 MiniIcon::MiniIcon()
@@ -472,9 +471,6 @@ void HudLayer::initHeroInterface()
 	item2Button->setMarkSprite("skill_freeze.png");
 	item3Button->setMarkSprite("skill_freeze.png");
 	item4Button->setMarkSprite("skill_freeze.png");
-
-	// Apply optional custom HUD layout. Mode 0 keeps the original HUD.
-	CustomHudLayout::apply(this);
 
 	// init gear
 	updateGears();
